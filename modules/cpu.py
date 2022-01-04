@@ -2,8 +2,36 @@ from main import app
 import psutil
 import platform
 
+from pydantic import BaseModel
+from typing import List
 
-@app.get('/cpu')
+
+class CPUCountModel(BaseModel):
+    count: int
+    physical: int
+
+
+class CPUFreqModel(BaseModel):
+    min: int
+    max: int
+    current: int
+    per_cpu: List[int]
+
+
+class CPULoadPercentModel(BaseModel):
+    current: float
+    per_cpu: List[float]
+
+
+class CPUResponseModel(BaseModel):
+    name: str
+    cpus: CPUCountModel
+    freq: CPUFreqModel
+    load_percent: CPULoadPercentModel
+    load: tuple
+
+
+@app.get('/cpu', response_model=CPUResponseModel)
 async def get_cpu_info():
     freqs = psutil.cpu_freq(True)
     avg_freq = psutil.cpu_freq()

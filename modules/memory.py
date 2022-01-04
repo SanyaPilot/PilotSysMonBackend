@@ -2,8 +2,21 @@ from main import app
 import psutil
 from psutil._common import bytes2human
 
+from pydantic import BaseModel
 
-@app.get('/memory')
+
+class MemoryCommonModel(BaseModel):
+    percent: float
+    raw: dict
+    human: dict
+
+
+class MemoryResponseModel(BaseModel):
+    ram: MemoryCommonModel
+    swap: MemoryCommonModel
+
+
+@app.get('/memory', response_model=MemoryResponseModel)
 async def get_memory_info():
     memory = psutil.virtual_memory()
     swap = psutil.swap_memory()
