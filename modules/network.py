@@ -20,6 +20,11 @@ class NetworkAddrsModel(BaseModel):
     mac: str
 
 
+class NetworkActiveIfaceRenponseModel(BaseModel):
+    name: str
+    type: str
+
+
 @app.get('/network/addrs', response_model=Dict[str, NetworkAddrsModel],
          name='Get network interfaces addresses',
          description='Returns an object with interfaces names as keys')
@@ -40,7 +45,8 @@ async def get_network_addresses():
 
 
 @app.get('/network/activeIface',
-         name='Get current active interface', description='Returns an interface name')
+         name='Get current active interface', description='Returns an interface name',
+         response_model=NetworkActiveIfaceRenponseModel)
 async def get_network_active_iface():
     data = psutil.net_if_addrs()
     for iface in data.items():
@@ -54,3 +60,8 @@ async def get_network_active_iface():
 
         if ok:
             return {'name': iface[0], 'type': 'wifi' if iface[0][0] == 'w' else 'ethernet'}
+
+
+@app.get('/network/hostname', name="Get the hostname")
+async def get_network_hostname():
+    return platform.node()
