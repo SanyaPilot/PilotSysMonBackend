@@ -23,7 +23,7 @@ class NetworkAddrsModel(BaseModel):
 @app.get('/network/addrs', response_model=Dict[str, NetworkAddrsModel],
          name='Get network interfaces addresses',
          description='Returns an object with interfaces names as keys')
-async def get_network_info():
+async def get_network_addresses():
     data = psutil.net_if_addrs()
     payload = {}
     for iface in data.items():
@@ -37,3 +37,20 @@ async def get_network_info():
             }
 
     return payload
+
+
+@app.get('/network/activeIface',
+         name='Get current active interface', description='Returns an interface name')
+async def get_network_active_iface():
+    data = psutil.net_if_addrs()
+    for iface in data.items():
+        ok = False
+        for addr in iface[1]:
+            if addr.address == '127.0.0.1':
+                break
+            if addr.family == AF_INET or addr.family == AF_INET6:
+                ok = True
+                break
+
+        if ok:
+            return {'name': iface[0], 'type': 'wifi' if iface[0][0] == 'w' else 'ethernet'}
