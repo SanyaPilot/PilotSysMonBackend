@@ -1,1 +1,1 @@
-__all__ = ['os', 'cpu', 'memory', 'python', 'disks']
+__all__ = ['os', 'cpu', 'memory', 'python', 'disks', 'network']
