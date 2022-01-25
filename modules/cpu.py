@@ -1,9 +1,15 @@
 from main import app
 import psutil
 import platform
+import subprocess
 
+from fastapi.responses import HTMLResponse, JSONResponse
 from pydantic import BaseModel
-from typing import List
+from typing import List, Optional
+
+
+class ErrorMessage(BaseModel):
+    message: str
 
 
 class CPUCountModel(BaseModel):
@@ -31,8 +37,22 @@ class CPUResponseModel(BaseModel):
     load: tuple
 
 
+class CPUInfoResponseModel(BaseModel):
+    name: str
+    cpus: CPUCountModel
+    arch: str
+    vendor_id: Optional[str] = None
+    cpu_family: Optional[str] = None
+    model: Optional[str] = None
+    stepping: Optional[str] = None
+    microcode: Optional[str] = None
+    flags: Optional[str] = None
+    bugs: Optional[str] = None
+    features: Optional[str] = None
+
+
 @app.get('/cpu', response_model=CPUResponseModel)
-async def get_cpu_info():
+async def get_cpu_summary():
     freqs = psutil.cpu_freq(True)
     avg_freq = psutil.cpu_freq()
     load_percent = psutil.cpu_percent(interval=0.1, percpu=True)
@@ -62,3 +82,30 @@ async def get_cpu_info():
         },
         'load': avg_load,
     }
+
+
+@app.get('/cpu/info', response_model=CPUInfoResponseModel, responses={501: {
+    'description': 'Returns when server is not a Linux machine', 'content': {'text/html': {}}}})
+async def get_cpu_info():
+    if platform.system() != 'Linux':
+        return HTMLResponse(status_code=501, content='<h1>Error 501 Not Implemented</h1>'
+                                                     'Server is running Windows, macOS or any other OS.<br>'
+                                                     'This feature is for Linux machines only!')
+
+    output = subprocess.run(['cat', '/proc/cpuinfo'], stdout=subprocess.PIPE, text=True).stdout
+    payload = {
+        'name': platform.processor(),
+        'cpus': {
+            'count': psutil.cpu_count(),
+            'physical': psutil.cpu_count(False)
+        },
+        'arch': platform.machine()
+    }
+    for line in output.split('\n'):
+        pos = line.find(':')
+        attr = line[:pos].strip().lower()
+        if attr == 'vendor_id' or attr == 'cpu family' or attr == 'model' or attr == 'stepping' or attr == 'microcode'\
+                or attr == 'flags' or attr == 'bugs' or attr == 'features':
+            payload[attr.replace(' ', '_')] = line[pos + 2:]
+
+    return payload
