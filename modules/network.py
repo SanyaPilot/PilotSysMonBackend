@@ -17,7 +17,7 @@ class NetworkAddrCommonModel(BaseModel):
 class NetworkAddrsModel(BaseModel):
     v4: Optional[NetworkAddrCommonModel]
     v6: Optional[NetworkAddrCommonModel]
-    mac: str
+    mac: Optional[str]
 
 
 class NetworkActiveIfaceRenponseModel(BaseModel):
