@@ -1,0 +1,4 @@
+fastapi>=0.75.0,<0.76.0
+uvicorn[standard]
+pydantic>=1.9.0,<2.0.0
+psutil==5.9.0
