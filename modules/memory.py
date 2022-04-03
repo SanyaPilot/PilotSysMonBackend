@@ -34,7 +34,7 @@ class SwapModel(BaseModel):
 
 class MemoryResponseModel(BaseModel):
     ram: RAMModel
-    swap: SwapModel
+    swap: Optional[SwapModel] = None
 
 
 @app.get('/memory', response_model=MemoryResponseModel)
@@ -44,10 +44,12 @@ async def get_memory_info(human: Optional[bool] = Query(
     swap = psutil.swap_memory()
     payload = {
         'ram': {},
-        'swap': {}
+        'swap': None if swap.total == 0 else {}
     }
     for key in payload.keys():
         obj = memory if key == 'ram' else swap
+        if obj.total == 0:
+            break
         for key2 in obj._fields:
             value = getattr(obj, key2)
             payload[key][key2] = bytes2human(value) if key2 != 'percent' and human else value
