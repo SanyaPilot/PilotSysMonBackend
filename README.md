@@ -21,12 +21,12 @@ In theory, it will run on every platform which is supported by **psutil**, but i
 
 ## Deploying
 
-As FastAPI uses ASGI standard, you can use any ASGI server. I will use **uvicorn** (It is included in requirements.txt) file, so if you want to use anything else, just edit it). This guide is written for Linux, but the project is not restricted for it only.
+As FastAPI uses ASGI standard, you can use any ASGI server. I will use **uvicorn** (It is included in requirements.txt file, so if you want to use anything else, just edit it). This guide is written for Linux, but the project is not restricted for it only.
 
 1. **Prepare the environment**  
-   First of all, clone repository:  
+   First of all, clone the repository:  
    `  git clone https://github.com/SanyaPilot/PilotSysMonBackend`  
-   This project fully works in Python **3.9, 3.10**. Other's versions are untested, but can work too.  
+   This project fully works in Python **3.9, 3.10**. Other versions are untested, but can work too.  
    It is better to setup Python venv (Virtual ENVironment), but you can use global packages storage. To setup, launch the command below in the project directory:  
    `python -m venv <venv directory>`  
    And activate it using  
