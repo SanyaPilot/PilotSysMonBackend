@@ -68,7 +68,6 @@ async def get_logs(id: Optional[str] = Query(
             else:
                 args.extend(('-U', datetime.fromtimestamp(until).isoformat(timespec='seconds', sep=' ')))
 
-    print(args)
     output = subprocess.run(args=args, capture_output=True)
     raw_log = json.loads(b'[' + output.stdout.replace(b'\n', b',')[:-1] + b']')
 
