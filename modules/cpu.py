@@ -3,7 +3,7 @@ import psutil
 import platform
 import subprocess
 
-from fastapi.responses import HTMLResponse, JSONResponse
+from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 from typing import List, Optional
 
@@ -73,7 +73,7 @@ async def get_cpu_summary():
         'freq': {
             'min': avg_freq.min,
             'max': avg_freq.max,
-            'current': round(avg_freq.current * 1000),
+            'current': round(avg_freq.current * 1000 if avg_freq.current // 1000 == 0 else avg_freq.current),
             'per_cpu': [round(i.current * 1000) for i in freqs]
         },
         'load_percent': {
@@ -88,9 +88,8 @@ async def get_cpu_summary():
     'description': 'Returns when server is not a Linux machine', 'content': {'text/html': {}}}})
 async def get_cpu_info():
     if platform.system() != 'Linux':
-        return HTMLResponse(status_code=501, content='<h1>Error 501 Not Implemented</h1>'
-                                                     'Server is running Windows, macOS or any other OS.<br>'
-                                                     'This feature is for Linux machines only!')
+        return JSONResponse(status_code=501, content='{"status": "error",'
+                                                     '"description": "This feature is for Linux machines only"}')
 
     output = subprocess.run(['cat', '/proc/cpuinfo'], stdout=subprocess.PIPE, text=True).stdout
     payload = {
